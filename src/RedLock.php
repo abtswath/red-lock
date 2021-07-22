@@ -7,22 +7,25 @@ use Ramsey\Uuid\Uuid;
 
 class RedLock {
 
-    /**
-     * @var array
-     */
     private $instances;
 
     private $clockDriftFactor = 0.01;
 
     private $effectiveNum;
 
+    private $retryTimes;
+
+    private $retryDelay;
+
     /**
      * 
      * @param array
      * 
      */
-    public function __construct(array $instances) {
+    public function __construct(array $instances, int $retryTimes = 3, int $retryDelay = 100) {
         $this->instances = $instances;
+        $this->retryTimes = $retryTimes;
+        $this->retryDelay = $retryDelay;
 
         $num = count($instances);
         $this->effectiveNum = $num - ($num / 2 + 1);
@@ -37,25 +40,33 @@ class RedLock {
      * @return Lock
      */
     public function lock(string $resource, int $ttl): ?Lock {
-        $startTime = microtime(true) * 1000;
         $token = Uuid::uuid4()->toString();
+        $retryTimes = $this->retryTimes;
 
-        $n = 0;
-        foreach ($this->instances as $instance) {
-            if ($this->lockInstance($instance, $resource, $token, $ttl)) {
-                $n++;
+        do {
+            $startTime = microtime(true) * 1000;
+
+            $n = 0;
+            foreach ($this->instances as $instance) {
+                if ($this->lockInstance($instance, $resource, $token, $ttl)) {
+                    $n++;
+                }
             }
-        }
 
-        $drift = ($ttl * $this->clockDriftFactor) + 2;
+            $drift = ($ttl * $this->clockDriftFactor) + 2;
 
-        $validityPeriod = $ttl - (microtime(true) * 1000 - $startTime) - $drift;
+            $validityPeriod = $ttl - (microtime(true) * 1000 - $startTime) - $drift;
 
-        if ($n >= $this->effectiveNum && $validityPeriod > 0) {
-            return new Lock($resource, $token, $validityPeriod);
-        }
+            if ($n >= $this->effectiveNum && $validityPeriod > 0) {
+                return new Lock($resource, $token, $validityPeriod);
+            }
 
-        $this->unlock(new Lock($resource, $token));
+            $this->unlock(new Lock($resource, $token));
+
+            usleep($this->retryDelay);
+
+            $retryTimes--;
+        } while ($retryTimes > 0);
         return null;
     }
 
