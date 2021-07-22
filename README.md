@@ -1,4 +1,4 @@
-# Redis distributed locks in php
+# Redis Distributed Lock in php
 
 ```
 $instances = [
