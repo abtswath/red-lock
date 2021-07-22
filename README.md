@@ -9,7 +9,7 @@ $instances = [
 ];
 $redLock = new RedLock($instances);
 ```
-### lock: 
+### lock
 ```
 $lock = $redLock->lock('resource', 10 * 1000);
 
@@ -25,7 +25,7 @@ object(Great\RedLock\Lock)#3 (3) {
     int(1000)
 }
 ```
-### unlock: 
+### unlock
 ```
 $redLock->unlock($lock);
 ```
