@@ -1,0 +1,22 @@
+{
+    "name": "great/red-lock",
+    "description": "redis distributed locks",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Great\\RedLock\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Great",
+            "email": "zyapfine@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "~7.0",
+        "ext-redis": "~2.2.5",
+        "ramsey/uuid": "^4.1"
+    }
+}
