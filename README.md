@@ -3,9 +3,9 @@
 ```
 $instances = [
     new Redis('127.0.0.1', 6379, 0.01),
-    new Redis('127.0.0.1', 6379, 0.01),
-    new Redis('127.0.0.1', 6379, 0.01),
-    new Redis('127.0.0.1', 6379, 0.01),
+    new Redis('127.0.0.1', 6380, 0.01),
+    new Redis('127.0.0.1', 6381, 0.01),
+    new Redis('127.0.0.1', 6382, 0.01),
 ];
 $redLock = new RedLock($instances);
 ```
